@@ -1,0 +1,7 @@
+('c:\\users\\ethan\\pycharmprojects\\keyboardconnector\\venv\\lib\\site-packages\\pyparsing-3.0.9-py3.8.egg',
+ None,
+ {'*.pyc', '*.py', '*.pyd', 'EGG-INFO', '*.pyw', '*.cp38-win_amd64.pyd'},
+ 'DATA',
+ [('pyparsing\\py.typed',
+   'c:\\users\\ethan\\pycharmprojects\\keyboardconnector\\venv\\lib\\site-packages\\pyparsing-3.0.9-py3.8.egg\\pyparsing\\py.typed',
+   'DATA')])
