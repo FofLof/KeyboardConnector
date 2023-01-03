@@ -33,10 +33,12 @@ def task():
     global receivedCommands
     global addedCommands
     # print(NetworkTables.isConnected())
-    if (not NetworkTables.isConnected()):
+    if not NetworkTables.isConnected():
         connectedLabel.configure(text="Connecting...")
         connectedLabel.place(relx=0.5, rely=0.05, anchor=tkinter.N)
         receivedCommands = []
+        textbox.configure(state="normal")
+        textbox.delete('1.0', "end")
         addedCommands = False
         if len(ipEntry.get()) >= 9 and (
                 ipEntry.get() == "127.0.0.1" or ("10." in ipEntry.get() and ".2" in ipEntry.get())):
@@ -87,6 +89,7 @@ class App(customtkinter.CTk):
         global textbox
         textbox = customtkinter.CTkTextbox(self)
         textbox.grid(row=0, column=0, padx=(100, 0), pady=(60, 0))
+        textbox.configure(state = NORMAL)
 
         global ipEntry
         ipEntry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP:")
