@@ -1,3 +1,5 @@
+import string
+
 from networktables import NetworkTables
 import tkinter
 import customtkinter
@@ -11,6 +13,9 @@ commandsReceived = False
 addedCommands = False
 receivedCommands = []
 released = False
+hasClearedTables = False
+
+alphabet = list(string.ascii_uppercase)
 
 nt = ntInstance.getTable("Keyboard")
 
@@ -40,14 +45,21 @@ def task():
         textbox.configure(state="normal")
         textbox.delete('1.0', "end")
         addedCommands = False
-        if len(ipEntry.get()) >= 9 and (
-                ipEntry.get() == "127.0.0.1" or ("10." in ipEntry.get() and ".2" in ipEntry.get())):
+        global hasClearedTables
+        hasClearedTables = False
+        if len(ipEntry.get()) >= 9: #and (
+                #ipEntry.get() == "127.0.0.1" or ("10." in ipEntry.get() and ".2" in ipEntry.get())):
             NetworkTables.initialize(server=ipEntry.get())
     else:
         getCommandList()
+
+        if not hasClearedTables:
+            for x in alphabet:
+                nt.getEntry(str(x)).delete()
+            hasClearedTables = TRUE
         # connectedLabel.configure(master= customtkinter.CTk,
         #                          text="Connecting...",
-        #                          font=("Exo", 60))
+        #            aaaaaabbba              font=("Exo", 60))
         connectedLabel.configure(text="Connected-Commands found")
         connectedLabel.place(relx=0.5, rely=0.05, anchor=tkinter.N)
         if not len(receivedCommands) == 0 and not addedCommands:
@@ -60,7 +72,7 @@ def task():
                 on_release=on_release)
             listener.start()
 
-    app.after(100, task)
+    app.after(20, task)
 
 
 def getCommandList():
@@ -73,9 +85,11 @@ def getCommandList():
 
 
 class App(customtkinter.CTk):
-
     def __init__(self):
         super().__init__()
+        global alphabet
+        for x in range(10):
+            alphabet.append(x)
         photo = PhotoImage(file="teamLogo.png")
         self.title("Keyboard Connector")
         self.iconphoto(False, photo)
@@ -102,7 +116,7 @@ class App(customtkinter.CTk):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     app = App()
-    app.after(100, task)
+    app.after(20, task)
     app.mainloop()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
