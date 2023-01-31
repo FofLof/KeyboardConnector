@@ -15,8 +15,10 @@ receivedCommands = []
 released = False
 hasClearedTables = False
 
-alphabet = list(string.ascii_uppercase)
+characters = list(string.__all__)
 
+
+# list(string.ascii_uppercase, string.digits)
 nt = ntInstance.getTable("Keyboard")
 
 
@@ -54,7 +56,7 @@ def task():
         getCommandList()
 
         if not hasClearedTables:
-            for x in alphabet:
+            for x in characters:
                 nt.getEntry(str(x)).delete()
             hasClearedTables = TRUE
         # connectedLabel.configure(master= customtkinter.CTk,
@@ -87,9 +89,10 @@ def getCommandList():
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        global alphabet
+        global characters
+        global numbers
         for x in range(10):
-            alphabet.append(x)
+            characters.append(x)
         photo = PhotoImage(file="teamLogo.png")
         self.title("Keyboard Connector")
         self.iconphoto(False, photo)
@@ -104,6 +107,7 @@ class App(customtkinter.CTk):
         textbox = customtkinter.CTkTextbox(self)
         textbox.grid(row=0, column=0, padx=(100, 0), pady=(60, 0))
         textbox.configure(state = NORMAL)
+
 
         global ipEntry
         ipEntry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP:")
