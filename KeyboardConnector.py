@@ -1,4 +1,5 @@
 import string
+import time
 
 from networktables import NetworkTables
 import tkinter
@@ -13,6 +14,7 @@ commandsReceived = False
 addedCommands = False
 receivedCommands = []
 released = False
+onTrueReleased = False
 hasClearedTables = False
 
 characters = list(string.__all__)
@@ -21,22 +23,43 @@ characters = list(string.__all__)
 # list(string.ascii_uppercase, string.digits)
 nt = ntInstance.getTable("Keyboard")
 
+allowedKeys = []
+
+typeOfCommands = []
+
 
 def on_press(key):
+    global onTrueReleased
     global released
-    print(format(key).upper())
-    if (released == False):
+    global allowedKeys
+    if not released and format(key).upper()[1] in allowedKeys:
+        print("Pressed")
+        print("Released ", released)
+        print("Allowed Key ", format(key).upper()[1] in allowedKeys)
         nt.getEntry(format(key).upper()[1]).setBoolean(not nt.getEntry(format(key).upper()[1]).getBoolean(False))
         released = True
+        onTrueReleased = False
+
 
 
 def on_release(key):
+    global onTrueReleased
     global released
     released = False
+    if format(key).upper()[1] in allowedKeys:
+        indexOfCharacter = allowedKeys.index(format(key).upper()[1])
+        print("Character Found")
+        if typeOfCommands[indexOfCharacter] == "onTrue" and not onTrueReleased:
+            print("Valid")
+            onTrueReleased = True
+            time.sleep(0.05)
+            nt.getEntry(format(key).upper()[1]).setBoolean(False)
     pass
 
 
 def task():
+    global allowedKeys
+    # print(allowedKeys)
     global receivedCommands
     global addedCommands
     # print(NetworkTables.isConnected())
@@ -47,21 +70,20 @@ def task():
         textbox.configure(state="normal")
         textbox.delete('1.0', "end")
         addedCommands = False
+        # allowedKeys.clear()
+        global typeOfCommands
+        typeOfCommands = []
         global hasClearedTables
         hasClearedTables = False
-        if len(ipEntry.get()) >= 9: #and (
-                #ipEntry.get() == "127.0.0.1" or ("10." in ipEntry.get() and ".2" in ipEntry.get())):
+        if len(ipEntry.get()) >= 9   and (
+            ipEntry.get() == "127.0.0.1" or ("10." in ipEntry.get() and ".2" in ipEntry.get())):
             NetworkTables.initialize(server=ipEntry.get())
     else:
         getCommandList()
-
         if not hasClearedTables:
             for x in characters:
                 nt.getEntry(str(x)).delete()
-            hasClearedTables = TRUE
-        # connectedLabel.configure(master= customtkinter.CTk,
-        #                          text="Connecting...",
-        #            aaaaaabbba              font=("Exo", 60))
+            hasClearedTables = True
         connectedLabel.configure(text="Connected-Commands found")
         connectedLabel.place(relx=0.5, rely=0.05, anchor=tkinter.N)
         if not len(receivedCommands) == 0 and not addedCommands:
@@ -80,9 +102,13 @@ def task():
 def getCommandList():
     global commandsReceived
     global receivedCommands
+    global allowedKeys
     if not commandsReceived or len(receivedCommands) == 0:
         receivedCommands = ntInstance.getTable('SmartDashboard').getSubTable('Commands').getStringArray(
             'ListOfCommands', [])
+        allowedKeys = ntInstance.getTable('SmartDashboard').getSubTable('AllowedKeys').getStringArray('Keys', [])
+        global typeOfCommands
+        typeOfCommands = ntInstance.getTable('SmartDashboard').getSubTable('Commands').getStringArray('TypeOfCommands', [])
         commandsReceived = True
 
 
@@ -106,8 +132,7 @@ class App(customtkinter.CTk):
         global textbox
         textbox = customtkinter.CTkTextbox(self)
         textbox.grid(row=0, column=0, padx=(100, 0), pady=(60, 0))
-        textbox.configure(state = NORMAL)
-
+        textbox.configure(state=NORMAL)
 
         global ipEntry
         ipEntry = customtkinter.CTkEntry(master=self, placeholder_text="Enter IP:")
