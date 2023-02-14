@@ -7,6 +7,7 @@ import customtkinter
 from tkinter import *
 from networktables import NetworkTablesInstance
 from pynput import keyboard
+from pynput.keyboard import KeyCode
 
 ntInstance = NetworkTablesInstance.getDefault()
 
@@ -32,10 +33,8 @@ def on_press(key):
     global onTrueReleased
     global released
     global allowedKeys
-    if not released and format(key).upper()[1] in allowedKeys:
-        print("Pressed")
-        print("Released ", released)
-        print("Allowed Key ", format(key).upper()[1] in allowedKeys)
+
+    if not released and format(key).upper()[1] in allowedKeys and isinstance(key, KeyCode):
         nt.getEntry(format(key).upper()[1]).setBoolean(not nt.getEntry(format(key).upper()[1]).getBoolean(False))
         released = True
         onTrueReleased = False
@@ -52,7 +51,6 @@ def on_release(key):
         if typeOfCommands[indexOfCharacter] == "onTrue" and not onTrueReleased:
             print("Valid")
             onTrueReleased = True
-            time.sleep(0.05)
             nt.getEntry(format(key).upper()[1]).setBoolean(False)
     pass
 
